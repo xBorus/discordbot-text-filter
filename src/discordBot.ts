@@ -344,11 +344,13 @@ export const makeDiscordBot = async (
     const member = await message.guild?.members.fetch({ user: message.author });
     const memberName =
       result.filteredName ?? member?.displayName ?? message.author.username;
+
     const options: WebhookCreateMessageOptions = {
       username: memberName,
       avatarURL:
-        (!result.filteredName ? message.author.avatarURL() : undefined) ??
-        undefined,
+        (!result.filteredName
+          ? message.member?.avatarURL() ?? message.author.avatarURL()
+          : undefined) ?? undefined,
       content: result.filter ?? message.content,
     };
     await message.delete();

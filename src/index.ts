@@ -48,7 +48,9 @@ const asyncMain = async () => {
     onMessageDetected: async (message) => {
       const user = await getUserByDiscordId(message.author);
       const filteredName = user.hooded
-        ? user.hoodText ?? "Some hooded person"
+        ? !!user.hoodText
+          ? user.hoodText
+          : "Some hooded person"
         : undefined;
       if (user.gagType === GagType.None) return { filteredName };
       return {

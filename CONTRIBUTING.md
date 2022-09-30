@@ -18,7 +18,7 @@
 
 ## Prepare for coding
 
-1. Do `yarn i` in the repository
+1. Do `yarn` in the repository
 2. Create .env file with the copy of .env.sample, and fit the BOT_TOKEN property
 3. (optional) Edit code
 

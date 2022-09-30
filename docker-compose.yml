@@ -1,0 +1,55 @@
+version: "3.3"
+services:
+  botserver:
+    depends_on:
+      - database
+    env_file: .env
+    image: discordbot:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: botserver
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dockerbot.rule=Host(`botserver.${DOMAIN}`)"
+      - "traefik.http.routers.dockerbot.entrypoints=websecure"
+      - "traefik.http.routers.dockerbot.tls.certresolver=http"
+    environment:
+      BOT_TOKEN: "${BOT_TOKEN}"
+      PGUSER: "${POSTGRES_USER}"
+      PGPASSWORD: "${POSTGRES_PASSWORD}"
+      PGHOST: discordbot-database
+      PGDATABASE: discordbot_database
+      BOT_API_HASH_SALT: "${BOT_API_HASH_SALT}"
+    networks:
+      - web
+      - discordbot
+  database:
+    container_name: discordbot-database
+    env_file: .env
+    image: postgres:13.3
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+      - ./src/initdb.sql:/docker-entrypoint-initdb.d/init-database.sql
+    networks:
+      - discordbot
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres:
+
+networks:
+  discordbot:
+  web:
+    external: true
